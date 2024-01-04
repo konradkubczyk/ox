@@ -22,7 +22,10 @@ export default async ({ req, res, log, error }) => {
         const userList = await users.list(); // Get a list of all users
         log('User list fetched successfully')
         for (const user of userList.users) {
+            log(`Checking user ${JSON.stringify(user)}`);
             const lastAccess = new Date(user['accessedAt']).getTime();
+            log(`- last access: ${lastAccess}`);
+            log(`- time passed: ${currentTimeStamp - lastAccess}`);
             if (lastAccess < thresholdTimestamp) {
                 await users.delete(user.$id); // Delete the user
                 deletedUsersCount++;
