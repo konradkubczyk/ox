@@ -8,8 +8,8 @@ client
 
 const users = new sdk.Users(client);
 
-const currentTimeStamp = Math.floor(Date.now() / 1000); // Get current timestamp in seconds
-const timeLimitSeconds = process.env.TIME_LIMIT_SECONDS; // Read time limit from env var, default to 10 minutes
+const currentTimeStamp = Date.now(); // Get current timestamp in seconds
+const timeLimitSeconds = process.env.TIME_LIMIT_SECONDS * 1000; // Read time limit from env var, default to 10 minutes
 const thresholdTimestamp = currentTimeStamp - timeLimitSeconds;
 
 export default async ({ req, res, log, error }) => {
