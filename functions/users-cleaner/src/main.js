@@ -12,13 +12,15 @@ const currentTimeStamp = Math.floor(Date.now() / 1000); // Get current timestamp
 const timeLimitSeconds = process.env.TIME_LIMIT_SECONDS; // Read time limit from env var, default to 10 minutes
 const thresholdTimestamp = currentTimeStamp - timeLimitSeconds;
 
-async function removeOldUsers() {
+export default async ({ req, res, log, error }) => {
+    console.log('Starting user cleaner function...');
     try {
         const userList = await users.list(); // Get a list of all users
+        console.log('User list fetched successfully.')
 
         for (const user of userList.users) {
-            const lastUpdate = user['lastUpdate'];
-            if (lastUpdate < thresholdTimestamp) {
+            const lastAccess = user['accessedAt'];
+            if (lastAccess < thresholdTimestamp) {
                 console.log(`Deleting user: ${user.name} - ID: ${user.$id}`);
                 await users.delete(user.$id); // Delete the user
             }
@@ -28,5 +30,3 @@ async function removeOldUsers() {
         console.error('Error removing old users:', error);
     }
 }
-
-removeOldUsers();
