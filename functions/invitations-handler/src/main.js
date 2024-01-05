@@ -43,5 +43,11 @@ export default async ({req, res, log, error}) => {
     ]
   );
 
-  return res.send({ok: true, message: `Successfully connected user ${userID} to game ${game.$id} with invitation token ${invitationToken}`});
+  return res.json({
+    ok: true,
+    message: `Successfully connected user ${userID} to game ${game.$id} with invitation token ${invitationToken}`,
+    userID,
+    gameID: game.$id,
+    invitationToken
+  })
 };
