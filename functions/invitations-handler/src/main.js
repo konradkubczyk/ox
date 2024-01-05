@@ -1,33 +1,47 @@
-import { Client } from 'node-appwrite';
+import {Client, Databases, Query, Permission} from 'node-appwrite';
 
-// This is your Appwrite function
-// It's executed each time we get a request
-export default async ({ req, res, log, error }) => {
-  // Why not try the Appwrite SDK?
-  //
-  // const client = new Client()
-  //    .setEndpoint('https://cloud.appwrite.io/v1')
-  //    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-  //    .setKey(process.env.APPWRITE_API_KEY);
+const client = new Client();
+client
+  .setEndpoint('https://cloud.appwrite.io/v1')
+  .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+  .setKey(process.env.APPWRITE_API_KEY);
 
-  // You can log messages to the console
-  log('Hello, Logs!');
+const databases = new Databases(client);
 
-  // If something goes wrong, log an error
-  error('Hello, Errors!');
-
-  // The `req` object contains the request data
-  if (req.method === 'GET') {
-    // Send a response with the res object helpers
-    // `res.send()` dispatches a string back to the client
-    return res.send('Hello, World!');
+export default async ({req, res, log, error}) => {
+  if (req.method !== 'POST') {
+    error('Method Not Allowed');
+    return res.send({ok: false, error: 'Method Not Allowed'}, 405);
   }
 
-  // `res.json()` is a handy helper for sending JSON
-  return res.json({
-    motto: 'Build like a team of hundreds_',
-    learn: 'https://appwrite.io/docs',
-    connect: 'https://appwrite.io/discord',
-    getInspired: 'https://builtwith.appwrite.io',
-  });
+  const userID = req.headers['x-appwrite-user-id'];
+  const invitationToken = req.body.invitationToken;
+
+  const games = await databases.listDocuments(
+    process.env.APPWRITE_DATABASE_ID,
+    process.env.APPWRITE_COLLECTION_ID,
+    [Query.equal("invitationToken", invitationToken)]
+  );
+
+  if (games.total === 0) {
+    error('Invitation token not found');
+    return res.send({ok: false, error: `No games found with invitation token ${invitationToken}`}, 404);
+  }
+
+  const game = games.documents[0];
+
+  await databases.updateDocument(
+    process.env.APPWRITE_DATABASE_ID,
+    process.env.APPWRITE_COLLECTION_ID,
+    game.$id,
+    {
+      invitationToken: null,
+    },
+    [
+      `read("user:${userID}")`, // Add read permission for the new user
+      `update("user:${userID}")`, // Add write permission for the new user
+    ]
+  );
+
+  return res.send({ok: true, message: `Successfully connected user ${userID} to game ${game.$id} with invitation token ${invitationToken}`});
 };
