@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { createGame, joinGame } from '@/services/game'
+import router from '@/router'
 
 async function createGameHandler() {
   const game = await createGame()
@@ -7,6 +8,7 @@ async function createGameHandler() {
   const invitationLink = `${currentURL.origin}/join?gameID=${game.id}&invitationToken=${game.invitationToken}`
   console.log(game)
   alert(invitationLink)
+  router.push(`/game/${game.id}`)
 }
 
 async function joinGameHandler() {

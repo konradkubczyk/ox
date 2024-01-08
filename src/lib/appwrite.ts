@@ -1,6 +1,6 @@
 import { Client, Account, Databases, Functions } from 'appwrite';
 
-const client = new Client();
+export const client = new Client();
 
 client
   .setEndpoint('https://cloud.appwrite.io/v1')
