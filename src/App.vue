@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
   <header>
-    <nav class="flex gap-4 justify-center p-4">
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/game">Game</RouterLink>
-    </nav>
+    <h1 class="text-4xl text-center py-4 text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400 font-bold">
+      OX
+    </h1>
+<!--    <nav class="flex gap-4 justify-center p-4">-->
+<!--      <RouterLink to="/">Home</RouterLink>-->
+<!--      <RouterLink to="/game">Game</RouterLink>-->
+<!--    </nav>-->
   </header>
 
   <main>
