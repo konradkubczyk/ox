@@ -1,5 +1,5 @@
 import { Client, Databases } from 'node-appwrite'
-import { createSession } from './session.js'
+import { createSession, joinSession } from './session.js'
 
 export default async ({ req, res, log, error }) => {
   const client = new Client()
@@ -15,7 +15,8 @@ export default async ({ req, res, log, error }) => {
   }
 
   if (req.method === 'GET') {
-    return res.send({ ok: false, error: 'Not Implemented' }, 501)
+    const sessionDetails = await joinSession(client, databases, log, error, req.query.sessionId, req.query.inviteCode)
+    return res.send(sessionDetails, sessionDetails.status)
   }
 
   if (req.method === 'PATCH') {
