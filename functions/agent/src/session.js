@@ -33,7 +33,7 @@ export async function createSession(client, databases, log, error, playerMark) {
         {
           turn,
           finished: false,
-          positions
+          positions: JSON.stringify(positions)
         }
       ]
     }
@@ -221,7 +221,9 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
     }
   }
 
-  if (game.positions[position].player) {
+  const positions = JSON.parse(game.positions)
+
+  if (positions[position].player) {
     error('Position already taken')
     return {
       status: 409,
@@ -230,17 +232,23 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
     }
   }
 
-  game.positions[position].player = player
-  game.winner = checkWin(game.positions)
-  game.finished = Boolean(game.winner || game.positions.every((position) => position.player))
-  game.turn = player === '1' ? '2' : '1'
+  positions[position].player = player
+  game.winner = checkWin(positions)
 
   await databases.updateDocument(
     process.env.APPWRITE_DATABASE_ID,
     process.env.APPWRITE_SESSIONS_COLLECTION_ID,
     sessionId,
     {
-      games: session.games
+      games: [
+        {
+          $id: gameId,
+          turn: player === '1' ? '2' : '1',
+          finished: Boolean(game.winner || positions.every((position) => position.player)),
+          winner: game.winner,
+          positions: JSON.stringify(positions)
+        }
+      ]
     }
   )
 
