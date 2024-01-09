@@ -1,33 +1,26 @@
-import { Client } from 'node-appwrite';
+import { Client, Databases } from 'node-appwrite'
+import { createSession } from './session.js'
 
-// This is your Appwrite function
-// It's executed each time we get a request
 export default async ({ req, res, log, error }) => {
-  // Why not try the Appwrite SDK?
-  //
-  // const client = new Client()
-  //    .setEndpoint('https://cloud.appwrite.io/v1')
-  //    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-  //    .setKey(process.env.APPWRITE_API_KEY);
+  const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
+    .setKey(process.env.APPWRITE_API_KEY)
 
-  // You can log messages to the console
-  log('Hello, Logs!');
+  const databases = new Databases(client)
 
-  // If something goes wrong, log an error
-  error('Hello, Errors!');
-
-  // The `req` object contains the request data
-  if (req.method === 'GET') {
-    // Send a response with the res object helpers
-    // `res.send()` dispatches a string back to the client
-    return res.send('Hello, World!');
+  if (req.method === 'POST') {
+    const sessionDetails = await createSession(client, databases, log, error)
+    return res.send(sessionDetails, sessionDetails.status)
   }
 
-  // `res.json()` is a handy helper for sending JSON
-  return res.json({
-    motto: 'Build like a team of hundreds_',
-    learn: 'https://appwrite.io/docs',
-    connect: 'https://appwrite.io/discord',
-    getInspired: 'https://builtwith.appwrite.io',
-  });
+  if (req.method === 'GET') {
+    return res.send({ ok: false, error: 'Not Implemented' }, 501)
+  }
+
+  if (req.method === 'PATCH') {
+    return res.send({ ok: false, error: 'Not Implemented' }, 501)
+  }
+
+  return res.send({ ok: false, error: 'Method Not Allowed' }, 405)
 };
