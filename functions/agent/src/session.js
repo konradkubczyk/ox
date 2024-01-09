@@ -1,11 +1,22 @@
 import { ID } from 'node-appwrite'
 
-import { generateToken } from './utils.js'
+import { checkWin, generateToken } from './utils.js'
 
-export async function createSession(client, databases, log, error, player1Mark = 'X') {
+export async function createSession(client, databases, log, error, playerMark) {
   const player1Key = generateToken()
   const player2Key = generateToken()
   const inviteCode = generateToken()
+  const player1Mark = playerMark || (Math.random() > 0.5 ? 'X' : 'O')
+  const turn = Math.random() > 0.5 ? '1' : '2'
+
+  const positions = []
+
+  for (let i = 0; i < 9; i++) {
+    positions.push({
+      position: i,
+      player: null
+    })
+  }
 
   const session = await databases.createDocument(
     process.env.APPWRITE_DATABASE_ID,
@@ -20,8 +31,9 @@ export async function createSession(client, databases, log, error, player1Mark =
       player2Wins: 0,
       games: [
         {
-          turn: Math.random() > 0.5 ? '1' : '2',
-          finished: false
+          turn,
+          finished: false,
+          positions
         }
       ]
     }
@@ -33,7 +45,7 @@ export async function createSession(client, databases, log, error, player1Mark =
     message: `Successfully created session ${session.$id}`,
     sessionId: session.$id,
     gameId: session['games'][0].$id,
-    player1Key,
+    playerKey: player1Key,
     inviteCode
   }
 }
@@ -109,6 +121,141 @@ export async function joinSession(client, databases, log, error, sessionId, invi
     message: `Successfully joined session ${sessionId}`,
     sessionId,
     gameId: session['games'][0].$id,
-    player2Key: session.player2Key
+    playerKey: session.player2Key
+  }
+}
+
+export async function makeMove(client, databases, log, error, sessionId, gameId, playerKey, position) {
+
+  if (!sessionId) {
+    error('Session ID not provided')
+    return {
+      status: 400,
+      ok: false,
+      error: 'Session ID not provided'
+    }
+  }
+
+  if (!gameId) {
+    error('Game ID not provided')
+    return {
+      status: 400,
+      ok: false,
+      error: 'Game ID not provided'
+    }
+  }
+
+  if (!playerKey) {
+    error('Player key not provided')
+    return {
+      status: 400,
+      ok: false,
+      error: 'Player key not provided'
+    }
+  }
+
+  if (!position) {
+    error('Position not provided')
+    return {
+      status: 400,
+      ok: false,
+      error: 'Position not provided'
+    }
+  }
+
+  const session = await databases.getDocument(
+    process.env.APPWRITE_DATABASE_ID,
+    process.env.APPWRITE_SESSIONS_COLLECTION_ID,
+    sessionId
+  ).catch((err) => {
+    error(err)
+    return null
+  })
+
+  if (!session) {
+    error('Session not found')
+    return {
+      status: 404,
+      ok: false,
+      error: 'Session not found'
+    }
+  }
+
+  if (session.player1Key !== playerKey && session.player2Key !== playerKey) {
+    error('Invalid player key')
+    return {
+      status: 403,
+      ok: false,
+      error: 'Invalid player key'
+    }
+  }
+
+  const player = session.player1Key === playerKey ? '1' : '2'
+
+  const game = session.games.find((game) => game.$id === gameId)
+
+  if (!game) {
+    error('Game not found')
+    return {
+      status: 404,
+      ok: false,
+      error: 'Game not found'
+    }
+  }
+
+  if (game.finished) {
+    error('Game already finished')
+    return {
+      status: 409,
+      ok: false,
+      error: 'Game already finished'
+    }
+  }
+
+  if (game.turn !== player) {
+    error('Not your turn')
+    return {
+      status: 409,
+      ok: false,
+      error: 'Not your turn'
+    }
+  }
+
+  if (game.positions[position].player) {
+    error('Position already taken')
+    return {
+      status: 409,
+      ok: false,
+      error: 'Position already taken'
+    }
+  }
+
+  game.positions[position].player = player
+  game.winner = checkWin(game.positions)
+  game.finished = Boolean(game.winner || game.positions.every((position) => position.player))
+  game.turn = player === '1' ? '2' : '1'
+
+  await databases.updateDocument(
+    process.env.APPWRITE_DATABASE_ID,
+    process.env.APPWRITE_SESSIONS_COLLECTION_ID,
+    sessionId,
+    {
+      games: session.games
+    }
+  )
+
+  if (game.winner) {
+    session[`player${game.winner}Wins`] += 1
+    return {
+      status: 200,
+      ok: true,
+      message: `Player ${game.winner} won the game`
+    }
+  }
+
+  return {
+    status: 200,
+    ok: true,
+    message: `Successfully made move ${position}`
   }
 }
