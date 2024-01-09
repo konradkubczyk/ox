@@ -32,3 +32,15 @@ export function checkWin(board) {
 
   return null
 }
+
+export function emptyPositions(size = 9) {
+  const positions = []
+
+  for (let i = 0; i < size; i++) {
+    positions.push({
+      position: i,
+      player: null
+    })
+  }
+  return positions
+}

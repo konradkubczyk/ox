@@ -1,6 +1,6 @@
 import { ID } from 'node-appwrite'
 
-import { checkWin, generateToken } from './utils.js'
+import { checkWin, emptyPositions, generateToken } from './utils.js'
 
 export async function createSession(client, databases, log, error, playerMark) {
   const player1Key = generateToken()
@@ -9,14 +9,7 @@ export async function createSession(client, databases, log, error, playerMark) {
   const player1Mark = playerMark || (Math.random() > 0.5 ? 'X' : 'O')
   const turn = Math.random() > 0.5 ? '1' : '2'
 
-  const positions = []
-
-  for (let i = 0; i < 9; i++) {
-    positions.push({
-      position: i,
-      player: null
-    })
-  }
+  const positions = emptyPositions()
 
   const session = await databases.createDocument(
     process.env.APPWRITE_DATABASE_ID,
@@ -27,15 +20,14 @@ export async function createSession(client, databases, log, error, playerMark) {
       player2Key,
       inviteCode,
       player1Mark,
-      player1Wins: 0,
-      player2Wins: 0,
-      games: [
-        {
-          turn,
-          finished: false,
-          positions: JSON.stringify(positions)
-        }
-      ]
+      game: {
+        turn,
+        finished: false,
+        positions: JSON.stringify(positions),
+        player1Wins: 0,
+        player2Wins: 0,
+        gameNumber: 1
+      }
     }
   )
 
@@ -44,7 +36,7 @@ export async function createSession(client, databases, log, error, playerMark) {
     ok: true,
     message: `Successfully created session ${session.$id}`,
     sessionId: session.$id,
-    gameId: session['games'][0].$id,
+    gameId: session.game.$id,
     playerKey: player1Key,
     inviteCode
   }
@@ -120,12 +112,21 @@ export async function joinSession(client, databases, log, error, sessionId, invi
     ok: true,
     message: `Successfully joined session ${sessionId}`,
     sessionId,
-    gameId: session['games'][0].$id,
+    gameId: session.game.$id,
     playerKey: session.player2Key
   }
 }
 
 export async function makeMove(client, databases, log, error, sessionId, gameId, playerKey, position) {
+
+  if (position < 0 || position > 8) {
+    error('Invalid position')
+    return {
+      status: 400,
+      ok: false,
+      error: 'Invalid position'
+    }
+  }
 
   if (!sessionId) {
     error('Session ID not provided')
@@ -192,18 +193,7 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
 
   const player = session.player1Key === playerKey ? '1' : '2'
 
-  const game = session.games.find((game) => game.$id === gameId)
-
-  if (!game) {
-    error('Game not found')
-    return {
-      status: 404,
-      ok: false,
-      error: 'Game not found'
-    }
-  }
-
-  if (game.finished) {
+  if (session.game.finished) {
     error('Game already finished')
     return {
       status: 409,
@@ -212,7 +202,7 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
     }
   }
 
-  if (game.turn !== player) {
+  if (session.game.turn !== player) {
     error('Not your turn')
     return {
       status: 409,
@@ -221,7 +211,7 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
     }
   }
 
-  const positions = JSON.parse(game.positions)
+  const positions = JSON.parse(session.game.positions)
 
   if (positions[position].player) {
     error('Position already taken')
@@ -233,33 +223,26 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
   }
 
   positions[position].player = player
-  game.winner = checkWin(positions)
+  session.game.winner = checkWin(positions)
+  const gameFinished = Boolean(session.game.winner || positions.every((position) => position.player))
 
   await databases.updateDocument(
     process.env.APPWRITE_DATABASE_ID,
     process.env.APPWRITE_SESSIONS_COLLECTION_ID,
     sessionId,
     {
-      games: [
-        {
-          $id: gameId,
-          turn: player === '1' ? '2' : '1',
-          finished: Boolean(game.winner || positions.every((position) => position.player)),
-          winner: game.winner,
-          positions: JSON.stringify(positions)
-        }
-      ]
+      game: {
+        $id: gameId,
+        turn: player === '1' ? '2' : '1',
+        finished: gameFinished,
+        winner: session.game.winner,
+        positions: gameFinished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
+        player1Wins: session.game.winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
+        player2Wins: session.game.winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
+        gameNumber: gameFinished ? session.game.gameNumber + 1 : session.game.gameNumber
+      }
     }
   )
-
-  if (game.winner) {
-    session[`player${game.winner}Wins`] += 1
-    return {
-      status: 200,
-      ok: true,
-      message: `Player ${game.winner} won the game`
-    }
-  }
 
   return {
     status: 200,
