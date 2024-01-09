@@ -19,8 +19,8 @@ export default async ({ req, res, log, error }) => {
       databases,
       log,
       error,
-      req.query.sessionId,
-      req.query.inviteCode
+      req.headers['session-id'],
+      req.headers['invite-code']
     )
     return res.send(response, response.status)
   }
@@ -31,10 +31,10 @@ export default async ({ req, res, log, error }) => {
       databases,
       log,
       error,
-      req.query.sessionId,
-      req.query.gameId,
-      req.query.playerKey,
-      req.query.position
+      req.headers['session-id'],
+      req.headers['game-id'],
+      req.headers['player-key'],
+      req.body.position
     )
     return res.send(response, response.status)
   }
