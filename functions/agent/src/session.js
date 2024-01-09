@@ -38,7 +38,8 @@ export async function createSession(client, databases, log, error, playerMark) {
     sessionId: session.$id,
     gameId: session.game.$id,
     playerKey: player1Key,
-    inviteCode
+    inviteCode,
+    playerMark: player1Mark
   }
 }
 
@@ -113,7 +114,8 @@ export async function joinSession(client, databases, log, error, sessionId, invi
     message: `Successfully joined session ${sessionId}`,
     sessionId,
     gameId: session.game.$id,
-    playerKey: session.player2Key
+    playerKey: session.player2Key,
+    playerMark: session.player1Mark === 'X' ? 'O' : 'X'
   }
 }
 
