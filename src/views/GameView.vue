@@ -30,8 +30,10 @@ async function initializeGame() {
 initializeGame()
 
 const toastText = ref('')
+let changingField = ref(-1)
 
 async function makeMoveHandler(fieldNumber: number) {
+  changingField.value = fieldNumber
   const move = await makeMove(fieldNumber)
   if (!move.ok) {
     toastText.value = move.error
@@ -39,6 +41,7 @@ async function makeMoveHandler(fieldNumber: number) {
       toastText.value = ''
     }, 3000)
   }
+  changingField.value = -1
 }
 
 function quit() {
@@ -86,14 +89,15 @@ function quit() {
       class="aspect-square grid grid-cols-3 gap-3"
     >
       <button
-        v-for="fieldNumber in NUMBER_OF_FIELDS"
-        :key="fieldNumber"
-        @click="makeMoveHandler(fieldNumber - 1)"
+        v-for="(field, index) in NUMBER_OF_FIELDS"
+        :key="index"
+        @click="makeMoveHandler(index)"
         class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
-        :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[fieldNumber - 1].player)"
+        :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[index].player) || changingField !== -1"
       >
-        <IconO v-if="positions[fieldNumber - 1].player == 1" />
-        <IconX v-if="positions[fieldNumber - 1].player == 2" />
+        <span v-if="changingField === index" class="loading loading-ring loading-lg"></span>
+        <IconO v-else-if="positions[index].player == 1" />
+        <IconX v-else-if="positions[index].player == 2" />
       </button>
     </section>
     <section>
