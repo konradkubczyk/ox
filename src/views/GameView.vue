@@ -3,8 +3,11 @@
 import { useSessionStore } from '@/stores/session'
 import { connectToGame, loadGame, makeMove } from '@/services/client'
 import { useGameStore } from '@/stores/game'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import router from '@/router'
+
+import IconX from '@/components/icons/IconX.vue'
+import IconO from '@/components/icons/IconO.vue'
 
 const NUMBER_OF_FIELDS = 9
 
@@ -12,14 +15,30 @@ const sessionStore = useSessionStore()
 const gameStore = useGameStore()
 
 let positions = computed(() => Array.from(gameStore.positions.values()))
+const initialized = ref(false)
 
-if (sessionStore.gameId) {
-  loadGame(sessionStore.gameId)
-  connectToGame(sessionStore.gameId)
+async function initializeGame() {
+  if (!sessionStore.gameId) {
+    quit()
+  }
+  await loadGame(sessionStore.gameId as string)
+  await connectToGame(sessionStore.gameId as string)
+
+  initialized.value = true
 }
 
-function makeMoveHandler(fieldNumber: number) {
-  makeMove(fieldNumber)
+initializeGame()
+
+const toastText = ref('')
+
+async function makeMoveHandler(fieldNumber: number) {
+  const move = await makeMove(fieldNumber)
+  if (!move.ok) {
+    toastText.value = move.error
+    setTimeout(() => {
+      toastText.value = ''
+    }, 3000)
+  }
 }
 
 function quit() {
@@ -30,22 +49,66 @@ function quit() {
 </script>
 
 <template>
-  <section class="container mx-auto flex gap-4 w-2/3 text-gray-700">
-    <div class="flex-1 grid grid-cols-3 border rounded-xl text-center gap-4 p-4 max-w-3xl mx-auto">
+  <main class="flex flex-col gap-3 max-w-3xl mx-auto p-3">
+    <section class="bg-accent-content rounded-md p-3 flex gap-3 justify-between items-center text-neutral-content">
+      <div
+        v-if="!initialized"
+        class="flex gap-3 items-center px-2"
+      >
+        <span class="loading loading-spinner loading-xs"></span>
+        <p>Connecting...</p>
+      </div>
+      <div
+        v-else-if="sessionStore.player !== gameStore.turn"
+        class="flex gap-3 items-center px-2"
+      >
+        <span class="loading loading-dots loading-xs"></span>
+        <p>Waiting for opponent...</p>
+      </div>
+      <div
+        v-else
+        class="flex gap-3 items-center px-2"
+      >
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-full w-full bg-accent"></span>
+        </span>
+        <p>Your turn</p>
+      </div>
+      <button
+        class="btn btn-neutral btn-sm m-1"
+        @click="quit"
+      >
+        Quit
+      </button>
+    </section>
+    <section
+      class="aspect-square grid grid-cols-3 gap-3"
+    >
       <button
         v-for="fieldNumber in NUMBER_OF_FIELDS"
-        :key="fieldNumber - 1"
+        :key="fieldNumber"
         @click="makeMoveHandler(fieldNumber - 1)"
-        class="aspect-square rounded-lg flex justify-center items-center bg-gray-100 hover:bg-gray-200 disabled:pointer-events-none disabled:cursor-not-allowed cursor-pointer transition text-8xl"
-        :disabled="sessionStore.player !== gameStore.turn"
+        class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
+        :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[fieldNumber - 1].player)"
       >
-        {{ positions[fieldNumber - 1].player || '' }}
+        <IconO v-if="positions[fieldNumber - 1].player == 1" />
+        <IconX v-if="positions[fieldNumber - 1].player == 2" />
       </button>
+    </section>
+    <section>
+      <p class="opacity-50 text-center">
+        Round {{ gameStore.gameNumber || '-' }} ({{ gameStore.player1Wins === null ? '-' : gameStore.player1Wins }} :
+        {{ gameStore.player2Wins === null ? '-' : gameStore.player2Wins }})
+      </p>
+    </section>
+  </main>
+
+  <div v-if="toastText" class="toast">
+    <div class="alert alert-error">
+      <span>{{ toastText }}</span>
     </div>
-  </section>
-  <section class="p-5 text-center">
-    <button @click="quit">Quit</button>
-  </section>
+  </div>
 </template>
 
 <style scoped>

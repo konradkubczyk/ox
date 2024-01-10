@@ -1,42 +1,97 @@
 <script setup lang="ts">
 import router from '@/router'
 import { createGame, joinGame } from '@/services/client'
+import { onMounted, ref, watch } from 'vue'
+
+enum OperationState {
+  Idle,
+  Creating,
+  Created,
+  Joining,
+  Joined,
+  Error
+}
+
+interface OperationStatus {
+  inProgress: boolean
+  state: OperationState
+  title: string
+  message: string
+}
+
+let operationStatus = ref({
+  inProgress: false,
+  state: OperationState.Idle,
+  title: '',
+  message: ''
+} as OperationStatus)
+
+const modal = ref<HTMLDialogElement | null>(null)
+onMounted(() => {
+  watch(operationStatus, (status) => {
+    if (status.state !== OperationState.Idle && modal.value) {
+      modal.value.showModal()
+    }
+  })
+})
+
+const inviteLinkField = ref<HTMLInputElement | null>(null)
+const inviteLink = ref('')
+const toastText = ref('')
+const copiedInviteLink = ref(false)
+
+function selectAndCopyText() {
+  if (!inviteLinkField.value) {
+    return
+  }
+  inviteLinkField.value.select()
+  const link = inviteLinkField.value.value
+  navigator.clipboard.writeText(link).then(() => {
+    copiedInviteLink.value = true
+    toastText.value = 'Copied to clipboard'
+    setTimeout(() => {
+      toastText.value = ''
+    }, 3000)
+  })
+}
 
 async function createGameHandler() {
+
+  operationStatus.value = {
+    inProgress: true,
+    state: OperationState.Creating,
+    title: 'Creating a new game session',
+    message: 'Please wait...'
+  }
+
   try {
     const game = await createGame()
-    alert(`Game session created.\nSession ID: ${game.sessionId}\nInvite code: ${game.inviteCode}`)
-    await router.push({ name: 'game', params: { id: game.sessionId } })
-  } catch (e) {
-    alert('[ERROR] Failed to create a game session.\n' + e)
+
+    inviteLink.value = window.location.protocol + '//' + window.location.host + `/join/${game.sessionId}?inviteCode=${game.inviteCode}`
+
+    operationStatus.value = {
+      inProgress: false,
+      state: OperationState.Created,
+      title: 'Game session created',
+      message: 'Your game session has been created. Share the link with your friends.'
+    }
+  } catch (error) {
+    toastText.value = 'Failed to create a game session'
+    console.error(error)
   }
 }
 
 async function joinGameHandler() {
-  const sessionId = prompt('Enter session ID') || ''
-  if (!sessionId) {
-    alert('Session ID is required')
-  }
-  const inviteCode = prompt('Enter invite code') || ''
-  if (!inviteCode) {
-    alert('Invite code is required')
-  }
-  try {
-    const game = await joinGame(sessionId, inviteCode)
-    await router.push({ name: 'game', params: { id: game.sessionId } })
-  } catch (e) {
-    alert('[ERROR] Failed to join the game session.\n' + e)
-  }
+  alert('Not implemented yet')
 }
 </script>
 
 <template>
-  <main class="text-center">
+  <main class="text-center p-3">
     <div class="max-w-xl mx-auto">
       <h1 class="text-5xl">
-        Play
         <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">
-        OX
+        Play
       </span>
         now.
       </h1>
@@ -47,17 +102,51 @@ async function joinGameHandler() {
       <div class="flex gap-5 justify-center">
         <button
           @click="createGameHandler"
-          class="py-3 px-4 rounded-lg text-2xl text-gray-900 bg-gray-100 hover:bg-gray-200 transition active:scale-95"
+          class="btn btn-neutral"
+          :disabled="operationStatus.state !== OperationState.Idle"
         >
           Create a new game
         </button>
         <button
           @click="joinGameHandler"
-          class="py-3 px-4 rounded-lg text-2xl text-gray-100 bg-gray-900 hover:bg-gray-800 transition active:scale-95"
+          class="btn"
+          :disabled="operationStatus.state !== OperationState.Idle"
         >
           Join
         </button>
       </div>
     </div>
   </main>
+
+  <dialog ref="modal" class="modal">
+    <div class="modal-box flex gap-4 flex-col">
+      <div class="flex gap-3">
+        <span v-if="operationStatus.inProgress" class="loading loading-spinner loading-md"></span>
+        <h3 class="font-bold text-lg">{{ operationStatus.title }}</h3>
+      </div>
+      <p>{{ operationStatus.message }}</p>
+      <input
+        ref="inviteLinkField"
+        class="input input-bordered join-item w-full mt-1"
+        :value="inviteLink"
+        v-if="operationStatus.state === OperationState.Created"
+        @click="selectAndCopyText"
+        readonly
+      />
+      <button
+        v-if="operationStatus.state === OperationState.Created"
+        class="btn"
+        :disabled="!copiedInviteLink"
+        @click="() => router.push({ name: 'game' })"
+      >
+        {{ copiedInviteLink ? 'Play now' : 'Copy the link to continue' }}
+      </button>
+    </div>
+
+    <div v-if="toastText" class="toast">
+      <div class="alert alert-info">
+        <span>{{ toastText }}</span>
+      </div>
+    </div>
+  </dialog>
 </template>

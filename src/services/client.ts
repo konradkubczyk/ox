@@ -28,7 +28,6 @@ export async function createGame() {
   sessionStore.setSessionId(response.sessionId)
   sessionStore.setGameId(response.gameId)
   sessionStore.setPlayerKey(response.playerKey)
-  sessionStore.setPlayerMark(response.playerMark)
   sessionStore.setInviteCode(response.inviteCode)
   sessionStore.setPlayer('1')
 
@@ -63,7 +62,6 @@ export async function joinGame(sessionId: string, inviteCode: string) {
   sessionStore.setSessionId(response.sessionId)
   sessionStore.setGameId(response.gameId)
   sessionStore.setPlayerKey(response.playerKey)
-  sessionStore.setPlayerMark(response.playerMark)
   sessionStore.setPlayer('2')
 
   return response
