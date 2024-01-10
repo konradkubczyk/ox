@@ -1,5 +1,6 @@
+<!-- TODO: Implement game joining through invite links -->
+
 <script setup lang="ts">
-import { joinGame } from '@/services/game'
 import { reactive } from 'vue'
 import router from '@/router'
 
@@ -9,17 +10,17 @@ let status = reactive({
 })
 
 async function joinGameHandler(gameID: string, invitationToken: string) {
-  const result = await joinGame(invitationToken)
-  console.log(result)
-  if (!result.ok) {
-    status.error = true
-    status.message = result.message
-    return
-  }
-  status.message = 'Joined successfully, redirecting...'
-  setTimeout(() => {
-    router.push(`/game/${gameID}`)
-  }, 1000)
+  // const result = await joinGame(invitationToken)
+  // console.log(result)
+  // if (!result.ok) {
+  //   status.error = true
+  //   status.message = result.message
+  //   return
+  // }
+  // status.message = 'Joined successfully, redirecting...'
+  // setTimeout(() => {
+  //   router.push(`/game/${gameID}`)
+  // }, 1000)
 }
 
 // Check if the user has query parameters in the URL, and if so, join the game

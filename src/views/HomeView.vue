@@ -1,23 +1,32 @@
 <script setup lang="ts">
-import { createGame, joinGame } from '@/services/game'
 import router from '@/router'
+import { createGame, joinGame } from '@/services/client'
 
 async function createGameHandler() {
-  const game = await createGame()
-  const currentURL = new URL(window.location.href)
-  const invitationLink = `${currentURL.origin}/join?gameID=${game.id}&invitationToken=${game.invitationToken}`
-  console.log(game)
-  alert(invitationLink)
-  router.push(`/game/${game.id}`)
+  try {
+    const game = await createGame()
+    alert(`Game session created.\nSession ID: ${game.sessionId}\nInvite code: ${game.inviteCode}`)
+    await router.push({ name: 'game', params: { id: game.sessionId } })
+  } catch (e) {
+    alert('[ERROR] Failed to create a game session.\n' + e)
+  }
 }
 
 async function joinGameHandler() {
-  const invitationLink = prompt('Enter invitation link')
-  if (!invitationLink) {
-    alert('No invitation link entered')
-    return
+  const sessionId = prompt('Enter session ID') || ''
+  if (!sessionId) {
+    alert('Session ID is required')
   }
-  window.location.href = invitationLink
+  const inviteCode = prompt('Enter invite code') || ''
+  if (!inviteCode) {
+    alert('Invite code is required')
+  }
+  try {
+    const game = await joinGame(sessionId, inviteCode)
+    await router.push({ name: 'game', params: { id: game.sessionId } })
+  } catch (e) {
+    alert('[ERROR] Failed to join the game session.\n' + e)
+  }
 }
 </script>
 
@@ -38,13 +47,13 @@ async function joinGameHandler() {
       <div class="flex gap-5 justify-center">
         <button
           @click="createGameHandler"
-          class="py-3 px-4 rounded-lg text-2xl text-gray-900 bg-gray-100 hover:bg-gray-200 transition"
+          class="py-3 px-4 rounded-lg text-2xl text-gray-900 bg-gray-100 hover:bg-gray-200 transition active:scale-95"
         >
           Create a new game
         </button>
         <button
           @click="joinGameHandler"
-          class="py-3 px-4 rounded-lg text-2xl text-gray-100 bg-gray-900 hover:bg-gray-800 transition"
+          class="py-3 px-4 rounded-lg text-2xl text-gray-100 bg-gray-900 hover:bg-gray-800 transition active:scale-95"
         >
           Join
         </button>

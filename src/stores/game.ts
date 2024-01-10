@@ -1,41 +1,57 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+interface Field {
+  position: number,
+  player: number
+}
+
 export const useGameStore = defineStore('game', () => {
-  const gameID = ref<string | null>(null)
-  const invitationToken = ref<string | null>(null)
-  const hostSymbol = ref<string | null>(null)
-  const board = ref<string[] | null[]>([])
+  const turn = ref<string | null>(null)
+  const positions = ref<Field[]>(Array(9).fill({ position: 0, player: 0 }))
+  const player1Wins = ref<number | null>(null)
+  const player2Wins = ref<number | null>(null)
+  const gameNumber = ref<number | null>(null)
 
-  function setGameID(id: string) {
-    gameID.value = id
+  function setTurn(player: string) {
+    turn.value = player
   }
 
-  function setInvitationToken(token: string) {
-    invitationToken.value = token
+  function setPositions(board: Field[]) {
+    positions.value = board
   }
 
-  function setHostSymbol(symbol: string) {
-    hostSymbol.value = symbol
+  function setPlayer1Wins(wins: number) {
+    player1Wins.value = wins
   }
 
-  function addMove(index: number) {
-    console.log('[DEBUG] Adding move to index', index)
-    if (board.value[index] !== null) {
-      throw new Error('Position already taken')
-    }
-    board.value[index] = hostSymbol.value
+  function setPlayer2Wins(wins: number) {
+    player2Wins.value = wins
   }
 
-  function reset() {
-    gameID.value = null
-    invitationToken.value = null
-    hostSymbol.value = null
-
-    for (let i = 0; i < 9; i++) {
-      board.value[i] = null
-    }
+  function setGameNumber(number: number) {
+    gameNumber.value = number
   }
 
-  return { gameID, invitationToken, hostSymbol, board, setGameID, setInvitationToken, setHostSymbol, addMove, reset }
+  function clear() {
+    turn.value = null
+    positions.value = Array(9).fill({ position: 0, player: 0 })
+    player1Wins.value = null
+    player2Wins.value = null
+    gameNumber.value = null
+  }
+
+  return {
+    turn,
+    positions,
+    player1Wins,
+    player2Wins,
+    gameNumber,
+    setTurn,
+    setPositions,
+    setPlayer1Wins,
+    setPlayer2Wins,
+    setGameNumber,
+    clear
+  }
 })

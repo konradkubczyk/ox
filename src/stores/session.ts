@@ -1,31 +1,69 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { loadSessionData, clearSessionData } from '@/services/session'
 
 export const useSessionStore = defineStore('session', () => {
-  const sessionID = ref<string | null>(null)
-  const userID = ref<string | null>(null)
-  const currentGameID = ref<string | null>(null)
+  const sessionId = ref<string | null>(null)
+  const gameId = ref<string | null>(null)
+  const playerKey = ref<string | null>(null)
+  const playerMark = ref<string | null>(null)
+  const inviteCode = ref<string | null>(null)
+  const player = ref<string | null>(null)
 
-  function setSessionID(id: string | null) {
-    sessionID.value = id
+  if (localStorage.getItem('session')) {
+    const session = JSON.parse(localStorage.getItem('session') || '{}')
+    sessionId.value = session.sessionId
+    gameId.value = session.gameId
+    playerKey.value = session.playerKey
+    playerMark.value = session.playerMark
+    inviteCode.value = session.inviteCode
+    player.value = session.player
   }
 
-  function setUserID(id: string | null) {
-    userID.value = id
+  function setSessionId(id: string) {
+    sessionId.value = id
   }
 
-  function setCurrentGameID(id: string | null) {
-    currentGameID.value = id
+  function setGameId(id: string) {
+    gameId.value = id
   }
 
-  async function fetchSession() {
-    await loadSessionData() // Call the service function here
+  function setPlayerKey(key: string) {
+    playerKey.value = key
   }
 
-  async function clearSession() {
-    await clearSessionData() // Call the service function to clear session data
+  function setPlayerMark(mark: string) {
+    playerMark.value = mark
   }
 
-  return { sessionID, userID, currentGameID, setSessionID, setUserID, setCurrentGameID, fetchSession, clearSession }
-});
+  function setInviteCode(code: string) {
+    inviteCode.value = code
+  }
+
+  function setPlayer(slot: string) {
+    player.value = slot
+  }
+
+  function clear() {
+    sessionId.value = null
+    gameId.value = null
+    playerKey.value = null
+    playerMark.value = null
+    inviteCode.value = null
+  }
+
+  return {
+    sessionId,
+    gameId,
+    playerKey,
+    playerMark,
+    inviteCode,
+    player,
+    setSessionId,
+    setGameId,
+    setPlayerKey,
+    setPlayerMark,
+    setInviteCode,
+    setPlayer,
+    clear
+  }
+})
