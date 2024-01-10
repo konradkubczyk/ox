@@ -3,6 +3,8 @@ import { ref } from 'vue'
 import router from '@/router'
 import { useRoute } from 'vue-router'
 import { joinGame } from '@/services/client'
+import { useSessionStore } from '@/stores/session'
+import { useGameStore } from '@/stores/game'
 
 enum JoinState {
   Joining,
@@ -35,18 +37,25 @@ async function inviteLinkHandler() {
   }
 
   const sessionId = route.params.sessionId as string
-  console.log(sessionId)
   const inviteCode = route.query.inviteCode as string
-  console.log(inviteCode)
 
-  const game = await joinGame(sessionId, inviteCode)
-
-  if (!game.ok) {
+  try {
+    const game = await joinGame(sessionId, inviteCode)
+    if (!game.ok) {
+      joinStatus.value = {
+        inProgress: false,
+        state: JoinState.Error,
+        title: 'Error',
+        message: game.error
+      }
+      return
+    }
+  } catch (error) {
     joinStatus.value = {
       inProgress: false,
       state: JoinState.Error,
       title: 'Error',
-      message: game.error
+      message: 'Something went wrong. Please try again later.'
     }
     return
   }
@@ -65,6 +74,11 @@ async function inviteLinkHandler() {
 
 inviteLinkHandler()
 
+function quit() {
+  useSessionStore().clear()
+  useGameStore().clear()
+  router.push({ name: 'home' })
+}
 </script>
 
 <template>
@@ -76,6 +90,13 @@ inviteLinkHandler()
       <span v-if="joinStatus.inProgress" class="loading loading-spinner loading-lg"></span>
       <h1 class="text-xl font-bold">{{ joinStatus.title }}</h1>
       <p v-if="joinStatus.message">{{ joinStatus.message }}</p>
+      <button
+        v-if="joinStatus.state === JoinState.Error"
+        class="btn"
+        @click="quit"
+      >
+        Quit
+      </button>
     </div>
   </main>
 </template>
