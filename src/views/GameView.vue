@@ -52,7 +52,7 @@ function quit() {
 </script>
 
 <template>
-  <main class="flex flex-col gap-3 max-w-3xl mx-auto p-3">
+  <main class="flex flex-col gap-3 max-w-3xl mx-auto px-3">
     <section class="bg-accent-content rounded-md p-3 flex gap-3 justify-between items-center text-neutral-content">
       <div
         v-if="!initialized"
@@ -96,8 +96,8 @@ function quit() {
         :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[index].player) || changingField !== -1"
       >
         <span v-if="changingField === index" class="loading loading-ring loading-lg"></span>
-        <IconO v-else-if="positions[index].player == 1" />
-        <IconX v-else-if="positions[index].player == 2" />
+        <IconO v-else-if="positions[index].player == 1" class="fill-base-content" />
+        <IconX v-else-if="positions[index].player == 2" class="fill-base-content" />
       </button>
     </section>
     <section>

@@ -89,15 +89,15 @@ async function joinGameHandler() {
 <template>
   <main class="text-center p-3">
     <div class="max-w-xl mx-auto">
-      <h1 class="text-5xl">
-        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">
-        Play
-      </span>
-        now.
-      </h1>
+      <h2 class="text-5xl">
+        Connect,
+        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">play</span>,
+        win.
+      </h2>
       <p class="my-10">
-        Play with your friends online. Just create a new game and share the link or join an existing game. It's that
-        easy.
+        Tic Tac Toe, Noughts and Crosses, or perhaps Xs and Os? However you call it, you can play it here. Challenge
+        friends and unleash your inner strategic genius, or just enjoy some playful banter. It's all about connecting -
+        both the dots and with your opponents!
       </p>
       <div class="flex gap-5 justify-center">
         <button
