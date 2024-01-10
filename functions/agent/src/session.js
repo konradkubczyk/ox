@@ -228,21 +228,20 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
   session.game.winner = checkWin(positions)
   const gameFinished = Boolean(session.game.winner || positions.every((position) => position.player))
 
+  log(session.game.$id)
+
   await databases.updateDocument(
     process.env.APPWRITE_DATABASE_ID,
-    process.env.APPWRITE_SESSIONS_COLLECTION_ID,
-    sessionId,
+    process.env.APPWRITE_GAMES_COLLECTION_ID,
+    session.game.$id,
     {
-      game: {
-        $id: gameId,
-        turn: player === '1' ? '2' : '1',
-        finished: gameFinished,
-        winner: session.game.winner,
-        positions: gameFinished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
-        player1Wins: session.game.winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
-        player2Wins: session.game.winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
-        gameNumber: gameFinished ? session.game.gameNumber + 1 : session.game.gameNumber
-      }
+      turn: player === '1' ? '2' : '1',
+      finished: gameFinished,
+      winner: session.game.winner,
+      positions: gameFinished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
+      player1Wins: session.game.winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
+      player2Wins: session.game.winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
+      gameNumber: gameFinished ? session.game.gameNumber + 1 : session.game.gameNumber
     }
   )
 
