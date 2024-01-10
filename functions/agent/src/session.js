@@ -215,7 +215,7 @@ export async function makeMove(client, databases, log, error, sessionId, playerK
       turn: player === '1' ? '2' : '1',
       positions: finished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
       player1Wins: winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
-      player2Wins: winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
+      player2Wins: winner === '2' ? session.game.player2Wins + 1 : session.game.player2Wins,
       gameNumber: finished ? session.game.gameNumber + 1 : session.game.gameNumber
     }
   )
