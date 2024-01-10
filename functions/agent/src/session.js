@@ -2,11 +2,10 @@ import { ID } from 'node-appwrite'
 
 import { checkWin, emptyPositions, generateToken } from './utils.js'
 
-export async function createSession(client, databases, log, error, playerMark) {
+export async function createSession(client, databases, log, error) {
   const player1Key = generateToken()
   const player2Key = generateToken()
   const inviteCode = generateToken()
-  const player1Mark = playerMark || (Math.random() > 0.5 ? 'X' : 'O')
   const turn = Math.random() > 0.5 ? '1' : '2'
 
   const positions = emptyPositions()
@@ -19,7 +18,6 @@ export async function createSession(client, databases, log, error, playerMark) {
       player1Key,
       player2Key,
       inviteCode,
-      player1Mark,
       game: {
         turn,
         positions: JSON.stringify(positions),
@@ -38,7 +36,6 @@ export async function createSession(client, databases, log, error, playerMark) {
     gameId: session.game.$id,
     playerKey: player1Key,
     inviteCode,
-    playerMark: player1Mark
   }
 }
 
@@ -114,7 +111,6 @@ export async function joinSession(client, databases, log, error, sessionId, invi
     sessionId,
     gameId: session.game.$id,
     playerKey: session.player2Key,
-    playerMark: session.player1Mark === 'X' ? 'O' : 'X'
   }
 }
 
