@@ -34,7 +34,6 @@ export default async ({ req, res, log, error }) => {
       log,
       error,
       req.headers['session-id'],
-      req.headers['game-id'],
       req.headers['player-key'],
       req.body.position
     )

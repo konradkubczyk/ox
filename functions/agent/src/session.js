@@ -22,7 +22,6 @@ export async function createSession(client, databases, log, error, playerMark) {
       player1Mark,
       game: {
         turn,
-        finished: false,
         positions: JSON.stringify(positions),
         player1Wins: 0,
         player2Wins: 0,
@@ -119,7 +118,7 @@ export async function joinSession(client, databases, log, error, sessionId, invi
   }
 }
 
-export async function makeMove(client, databases, log, error, sessionId, gameId, playerKey, position) {
+export async function makeMove(client, databases, log, error, sessionId, playerKey, position) {
 
   if (position < 0 || position > 8) {
     error('Invalid position')
@@ -136,15 +135,6 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
       status: 400,
       ok: false,
       error: 'Session ID not provided'
-    }
-  }
-
-  if (!gameId) {
-    error('Game ID not provided')
-    return {
-      status: 400,
-      ok: false,
-      error: 'Game ID not provided'
     }
   }
 
@@ -195,15 +185,6 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
 
   const player = session.player1Key === playerKey ? '1' : '2'
 
-  if (session.game.finished) {
-    error('Game already finished')
-    return {
-      status: 409,
-      ok: false,
-      error: 'Game already finished'
-    }
-  }
-
   if (session.game.turn !== player) {
     error('Not your turn')
     return {
@@ -225,8 +206,8 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
   }
 
   positions[position].player = player
-  session.game.winner = checkWin(positions)
-  const gameFinished = Boolean(session.game.winner || positions.every((position) => position.player))
+  const winner = checkWin(positions)
+  const finished = Boolean(winner || positions.every((position) => position.player))
 
   log(session.game.$id)
 
@@ -236,12 +217,10 @@ export async function makeMove(client, databases, log, error, sessionId, gameId,
     session.game.$id,
     {
       turn: player === '1' ? '2' : '1',
-      finished: gameFinished,
-      winner: session.game.winner,
-      positions: gameFinished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
-      player1Wins: session.game.winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
-      player2Wins: session.game.winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
-      gameNumber: gameFinished ? session.game.gameNumber + 1 : session.game.gameNumber
+      positions: finished ? JSON.stringify(emptyPositions()) : JSON.stringify(positions),
+      player1Wins: winner === '1' ? session.game.player1Wins + 1 : session.game.player1Wins,
+      player2Wins: winner === '2' ? session.game.player1Wins + 1 : session.game.player1Wins,
+      gameNumber: finished ? session.game.gameNumber + 1 : session.game.gameNumber
     }
   )
 
