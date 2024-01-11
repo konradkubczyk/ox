@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import router from '@/router'
-import { createGame, joinGame } from '@/services/client'
+import { createGame } from '@/services/client'
 import { onMounted, ref, watch } from 'vue'
 
 enum OperationState {
@@ -76,6 +76,12 @@ async function createGameHandler() {
       message: 'Your game session has been created. Share the link with your friends.'
     }
   } catch (error) {
+    operationStatus.value = {
+      inProgress: false,
+      state: OperationState.Error,
+      title: 'Failed to create a game session',
+      message: 'Something went wrong. Please try again later.'
+    }
     toastText.value = 'Failed to create a game session'
     console.error(error)
   }
@@ -103,17 +109,16 @@ async function joinGameHandler() {
         <button
           @click="createGameHandler"
           class="btn btn-neutral"
-          :disabled="operationStatus.state !== OperationState.Idle"
         >
           Create a new game
         </button>
-        <button
-          @click="joinGameHandler"
-          class="btn"
-          :disabled="operationStatus.state !== OperationState.Idle"
-        >
-          Join
-        </button>
+        <!--        <button-->
+        <!--          @click="joinGameHandler"-->
+        <!--          class="btn"-->
+        <!--          :disabled="operationStatus.state !== OperationState.Idle"-->
+        <!--        >-->
+        <!--          Join-->
+        <!--        </button>-->
       </div>
     </div>
   </main>
@@ -127,7 +132,7 @@ async function joinGameHandler() {
       <p>{{ operationStatus.message }}</p>
       <input
         ref="inviteLinkField"
-        class="input input-bordered join-item w-full mt-1"
+        class="input input-bordered join-item w-full"
         :value="inviteLink"
         v-if="operationStatus.state === OperationState.Created"
         @click="selectAndCopyText"
@@ -141,6 +146,14 @@ async function joinGameHandler() {
       >
         {{ copiedInviteLink ? 'Play now' : 'Copy the link to continue' }}
       </button>
+      <div
+        v-if="operationStatus.state === OperationState.Error"
+        class="modal-action mt-0"
+      >
+        <form method="dialog" class="w-full">
+          <button class="btn w-full">Close</button>
+        </form>
+      </div>
     </div>
 
     <div v-if="toastText" class="toast">
