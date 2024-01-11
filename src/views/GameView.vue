@@ -3,16 +3,68 @@
 import { useSessionStore } from '@/stores/session'
 import { connectToGame, loadGame, makeMove } from '@/services/client'
 import { useGameStore } from '@/stores/game'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import router from '@/router'
 
 import IconX from '@/components/icons/IconX.vue'
 import IconO from '@/components/icons/IconO.vue'
 
+interface Toast {
+  type: 'error' | 'success' | 'warning' | 'info',
+  text: string
+}
+
+const toast = ref<Toast>({ type: 'info', text: '' })
+
 const NUMBER_OF_FIELDS = 9
 
 const sessionStore = useSessionStore()
 const gameStore = useGameStore()
+
+interface PreviousStats {
+  player1Wins: number
+  player2Wins: number
+  gameNumber: number
+}
+
+const previousStats = ref<PreviousStats>({
+  player1Wins: 0,
+  player2Wins: 0,
+  gameNumber: 0
+})
+let hydrated = false
+watch(() => gameStore.gameNumber, (gameNumber) => {
+  console.log(gameNumber, previousStats.value.gameNumber)
+  if (gameNumber === null || !hydrated) {
+    hydrated = true
+    return
+  }
+  if (gameNumber > previousStats.value.gameNumber && gameNumber > 1 && gameStore.player1Wins !== null && gameStore.player2Wins !== null) {
+    if (gameStore.player1Wins > previousStats.value.player1Wins) {
+      if (sessionStore.player === '1') {
+        toast.value = { type: 'success', text: 'You won!' }
+      } else {
+        toast.value = { type: 'warning', text: 'Opponent won!' }
+      }
+    } else if (gameStore.player2Wins > previousStats.value.player2Wins) {
+      if (sessionStore.player === '2') {
+        toast.value = { type: 'success', text: 'You won!' }
+      } else {
+        toast.value = { type: 'warning', text: 'Opponent won!' }
+      }
+    } else {
+      toast.value = { type: 'info', text: 'Draw!' }
+    }
+    setTimeout(() => {
+      toast.value.text = ''
+    }, 3000)
+  }
+  previousStats.value = {
+    player1Wins: gameStore.player1Wins || 0,
+    player2Wins: gameStore.player2Wins || 0,
+    gameNumber: gameNumber
+  }
+})
 
 let positions = computed(() => Array.from(gameStore.positions.values()))
 const initialized = ref(false)
@@ -29,17 +81,20 @@ async function initializeGame() {
 
 initializeGame()
 
-const toastText = ref('')
 let changingField = ref(-1)
 
 async function makeMoveHandler(fieldNumber: number) {
   changingField.value = fieldNumber
-  const move = await makeMove(fieldNumber)
-  if (!move.ok) {
-    toastText.value = move.error
-    setTimeout(() => {
-      toastText.value = ''
-    }, 3000)
+  try {
+    const move = await makeMove(fieldNumber)
+    if (!move.ok) {
+      toast.value = { type: 'error', text: move.error }
+      setTimeout(() => {
+        toast.value.text = ''
+      }, 3000)
+    }
+  } catch (error) {
+    console.error(error)
   }
   changingField.value = -1
 }
@@ -90,13 +145,12 @@ function quit() {
     >
       <button
         v-for="(field, index) in NUMBER_OF_FIELDS"
-        :key="index"
+        :key="field"
         @click="makeMoveHandler(index)"
         class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
         :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[index].player) || changingField !== -1"
       >
-        <span v-if="changingField === index" class="loading loading-ring loading-lg"></span>
-        <IconO v-else-if="positions[index].player == 1" class="fill-base-content" />
+        <IconO v-if="positions[index].player == 1" class="fill-base-content" />
         <IconX v-else-if="positions[index].player == 2" class="fill-base-content" />
       </button>
     </section>
@@ -108,9 +162,17 @@ function quit() {
     </section>
   </main>
 
-  <div v-if="toastText" class="toast">
-    <div class="alert alert-error">
-      <span>{{ toastText }}</span>
+  <div v-if="toast.text" class="toast">
+    <div
+      class="alert"
+      :class="{
+        'alert-error': toast.type === 'error',
+        'alert-success': toast.type === 'success',
+        'alert-warning': toast.type === 'warning',
+        'alert-info': toast.type === 'info'
+      }"
+    >
+      <span>{{ toast.text }}</span>
     </div>
   </div>
 </template>
