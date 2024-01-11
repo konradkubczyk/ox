@@ -70,6 +70,16 @@ export async function joinGame(sessionId: string, inviteCode: string) {
 export async function makeMove(position: number) {
   const sessionStore = useSessionStore()
 
+  const gameStore = useGameStore()
+  gameStore.setPositions(gameStore.positions.map((field, index) => {
+    if (index === position) {
+      return { position, player: Number(sessionStore.player) }
+    }
+
+    return field
+  }))
+  gameStore.setTurn(sessionStore.player === '1' ? '2' : '1')
+
   const execution = await functions.createExecution(
     AGENT_FUNCTION_ID,
     JSON.stringify({ position: String(position) }),
