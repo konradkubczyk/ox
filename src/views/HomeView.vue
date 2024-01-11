@@ -86,10 +86,6 @@ async function createGameHandler() {
     console.error(error)
   }
 }
-
-async function joinGameHandler() {
-  alert('Not implemented yet')
-}
 </script>
 
 <template>
@@ -112,13 +108,6 @@ async function joinGameHandler() {
         >
           Create a new game
         </button>
-        <!--        <button-->
-        <!--          @click="joinGameHandler"-->
-        <!--          class="btn"-->
-        <!--          :disabled="operationStatus.state !== OperationState.Idle"-->
-        <!--        >-->
-        <!--          Join-->
-        <!--        </button>-->
       </div>
     </div>
   </main>
