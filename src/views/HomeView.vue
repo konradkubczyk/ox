@@ -89,7 +89,7 @@ async function createGameHandler() {
 </script>
 
 <template>
-  <main class="text-center p-3">
+  <section class="text-center p-3">
     <div class="max-w-xl mx-auto">
       <h2 class="text-5xl">
         Connect,
@@ -110,7 +110,7 @@ async function createGameHandler() {
         </button>
       </div>
     </div>
-  </main>
+  </section>
 
   <dialog ref="modal" class="modal">
     <div class="modal-box flex gap-4 flex-col">

@@ -34,7 +34,6 @@ const previousStats = ref<PreviousStats>({
 })
 let hydrated = false
 watch(() => gameStore.gameNumber, (gameNumber) => {
-  console.log(gameNumber, previousStats.value.gameNumber)
   if (gameNumber === null || !hydrated) {
     hydrated = true
     return
@@ -107,8 +106,8 @@ function quit() {
 </script>
 
 <template>
-  <main class="flex flex-col gap-3 max-w-3xl mx-auto px-3">
-    <section class="bg-accent-content rounded-md p-3 flex gap-3 justify-between items-center text-neutral-content">
+  <section class="flex flex-col gap-3 max-w-3xl mx-auto px-3">
+    <div class="bg-accent-content rounded-md p-3 flex gap-3 justify-between items-center text-neutral-content">
       <div
         v-if="!initialized"
         class="flex gap-3 items-center px-2"
@@ -139,8 +138,8 @@ function quit() {
       >
         Quit
       </button>
-    </section>
-    <section
+    </div>
+    <div
       class="aspect-square grid grid-cols-3 gap-3"
     >
       <button
@@ -153,14 +152,14 @@ function quit() {
         <IconO v-if="positions[index].player == 1" class="fill-base-content" />
         <IconX v-else-if="positions[index].player == 2" class="fill-base-content" />
       </button>
-    </section>
-    <section>
+    </div>
+    <div>
       <p class="opacity-50 text-center">
         Round {{ gameStore.gameNumber || '-' }} ({{ gameStore.player1Wins === null ? '-' : gameStore.player1Wins }} :
         {{ gameStore.player2Wins === null ? '-' : gameStore.player2Wins }})
       </p>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <div v-if="toast.text" class="toast">
     <div
