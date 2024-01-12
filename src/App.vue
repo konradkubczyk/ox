@@ -24,6 +24,9 @@ import IconX from '@/components/icons/IconX.vue'
     <a href="https://konradkubczyk.com" target="_blank" class="hover:text-base-content/80 transition">
       Author
     </a>
+    <RouterLink to="/licenses" class="hover:text-base-content/80 transition">
+      Licenses
+    </RouterLink>
   </footer>
 </template>
 

@@ -1,16 +1,17 @@
 {
   "name": "ox",
-  "version": "0.0.0",
-  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "run-p type-check gather-licenses \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "gather-licenses": "license-checker-rseidelsohn --json --relativeModulePath --relativeLicensePath --customPath licensesFormat.json --out src/assets/licenses.json"
   },
   "dependencies": {
     "appwrite": "^13.0.1",
@@ -30,6 +31,7 @@
     "daisyui": "^4.5.0",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
+    "license-checker-rseidelsohn": "^4.3.0",
     "npm-run-all2": "^6.1.1",
     "postcss": "^8.4.32",
     "prettier": "^3.0.3",
