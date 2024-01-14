@@ -91,12 +91,12 @@ async function createGameHandler() {
 <template>
   <section class="text-center p-3">
     <div class="max-w-xl mx-auto">
-      <h2 class="text-5xl">
+      <h2 class="text-4xl md:text-5xl">
         Connect,
-        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">play</span>,
-        win.
+        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">play</span>
+        &&nbsp;win.
       </h2>
-      <p class="my-10">
+      <p class="my-8">
         Tic Tac Toe, Noughts and Crosses, or perhaps Xs and Os? However you call it, you can play it here. Challenge
         friends and unleash your inner strategic genius, or just enjoy some playful banter. It's all about connecting -
         both the dots and with your opponents!

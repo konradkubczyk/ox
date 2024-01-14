@@ -16,17 +16,17 @@ const licensesList: License[] = Object.values(licenses)
 </script>
 
 <template>
-  <section class="container mx-auto max-w-5xl mt-4">
+  <section class="container mx-auto max-w-5xl mt-5 px-3">
     <div class="text-center max-w-3xl mx-auto">
-      <h1 class="text-5xl">
+      <h2 class="text-4xl md:text-5xl">
         Licenses
-      </h1>
-      <p class="my-10">
+      </h2>
+      <p class="my-8">
         This project uses various third-party libraries. You can find the list of them and their licenses below. Click
         on the name of the library to view more details.
       </p>
     </div>
-    <div class="flex flex-col gap-3 mx-3">
+    <div class="flex flex-col gap-3">
       <div v-for="(license, index) in licensesList" :key="index" class="collapse collapse-arrow bg-base-200">
         <input type="radio" name="my-accordion-1" />
         <div class="collapse-title flex gap-3 items-center justify-between flex-wrap">
@@ -56,7 +56,7 @@ const licensesList: License[] = Object.values(licenses)
           </ul>
           <pre
             v-if="license.licenseText"
-            class="text-wrap overflow-scroll whitespace-pre-line p-4 bg-base-100 rounded-lg"
+            class="whitespace-pre-line p-4 bg-base-100 rounded-lg"
           >
             {{ license.licenseText }}
           </pre>
