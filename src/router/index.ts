@@ -1,9 +1,10 @@
-import { createRouter, createWebHistory, useRoute } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import { useSessionStore } from '@/stores/session'
 import HomeView from '@/views/HomeView.vue'
 import GameView from '@/views/GameView.vue'
 import JoinView from '@/views/JoinView.vue'
 import LicensesView from '@/views/LicensesView.vue'
-import { useSessionStore } from '@/stores/session'
+import PageNotFoundView from '@/views/PageNotFoundView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,23 +15,32 @@ const router = createRouter({
       component: HomeView
     },
     {
+      path: '/join/:sessionId',
+      name: 'join',
+      component: JoinView
+    },
+    {
       path: '/game/',
       name: 'game',
       component: GameView,
       beforeEnter: (to, from, next) => {
         const sessionStore = useSessionStore()
         if (!sessionStore.sessionId) next({ name: 'home' })
+        else next()
       }
     },
     {
-      path: '/join/:sessionId',
-      name: 'join',
-      component: JoinView
+      path: '/join',
+      redirect: { name: 'home' }
     },
     {
       path: '/licenses',
       name: 'licenses',
       component: LicensesView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      component: PageNotFoundView
     }
   ]
 })
