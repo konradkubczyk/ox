@@ -82,23 +82,21 @@ function quit() {
 </script>
 
 <template>
-  <main>
-    <div
-      class="container w-96 h-96 rounded-xl mx-auto flex flex-col gap-5 justify-center items-center"
-      :class="joinStatus.state === JoinState.Error ? 'bg-rose-950' : 'bg-primary-content'"
+  <div
+    class="container w-96 h-96 rounded-xl mx-auto flex flex-col gap-5 justify-center items-center"
+    :class="joinStatus.state === JoinState.Error ? 'bg-rose-950' : 'bg-primary-content'"
+  >
+    <span v-if="joinStatus.inProgress" class="loading loading-spinner loading-lg"></span>
+    <h1 class="text-xl font-bold">{{ joinStatus.title }}</h1>
+    <p v-if="joinStatus.message">{{ joinStatus.message }}</p>
+    <button
+      v-if="joinStatus.state === JoinState.Error"
+      class="btn"
+      @click="quit"
     >
-      <span v-if="joinStatus.inProgress" class="loading loading-spinner loading-lg"></span>
-      <h1 class="text-xl font-bold">{{ joinStatus.title }}</h1>
-      <p v-if="joinStatus.message">{{ joinStatus.message }}</p>
-      <button
-        v-if="joinStatus.state === JoinState.Error"
-        class="btn"
-        @click="quit"
-      >
-        Quit
-      </button>
-    </div>
-  </main>
+      Quit
+    </button>
+  </div>
 </template>
 
 <style scoped>
