@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { useSessionStore } from '@/stores/session'
 import { connectToGame, loadGame, makeMove } from '@/services/client'
 import { useGameStore } from '@/stores/game'
@@ -69,9 +68,6 @@ let positions = computed(() => Array.from(gameStore.positions.values()))
 const initialized = ref(false)
 
 async function initializeGame() {
-  if (!sessionStore.gameId) {
-    quit()
-  }
   await loadGame(sessionStore.gameId as string)
   await connectToGame(sessionStore.gameId as string)
 
