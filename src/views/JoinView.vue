@@ -5,26 +5,15 @@ import { useRoute } from 'vue-router'
 import { joinGame } from '@/services/client'
 import { useSessionStore } from '@/stores/session'
 import { useGameStore } from '@/stores/game'
-
-enum JoinState {
-  Joining,
-  Joined,
-  Error
-}
-
-interface JoinStatus {
-  inProgress: boolean
-  state: JoinState
-  title: string
-  message: string
-}
+import { JoinState } from '@/types/JoinStatesEnum'
+import type { JoinStatusInterface } from '@/types/JoinStatusInterface'
 
 let joinStatus = ref({
   inProgress: true,
   state: JoinState.Joining,
   title: 'Preparing',
   message: ''
-} as JoinStatus)
+} as JoinStatusInterface)
 
 const route = useRoute()
 
@@ -67,7 +56,7 @@ async function inviteLinkHandler() {
     message: ''
   }
 
-  router.push({
+  await router.push({
     name: 'game'
   })
 }

@@ -73,7 +73,7 @@ export async function makeMove(position: number) {
   const gameStore = useGameStore()
   gameStore.setPositions(gameStore.positions.map((field, index) => {
     if (index === position) {
-      return { position, player: Number(sessionStore.player) }
+      return { position, player: sessionStore.player }
     }
 
     return field

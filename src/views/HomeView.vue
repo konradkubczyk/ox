@@ -1,65 +1,27 @@
 <script setup lang="ts">
-import router from '@/router'
 import { createGame } from '@/services/client'
-import { onMounted, ref, watch } from 'vue'
+import { ref } from 'vue'
+import GameCreationDialog from '@/components/GameCreationDialog.vue'
+import { OperationStatesEnum } from '@/types/OperationStatesEnum'
+import type { OperationStatusInterface } from '@/types/OperationStatusInterface'
+import type { ToastInterface } from '@/types/ToastInterface'
+import router from '@/router'
 
-enum OperationState {
-  Idle,
-  Creating,
-  Created,
-  Joining,
-  Joined,
-  Error
-}
+const inviteLink = ref('')
 
-interface OperationStatus {
-  inProgress: boolean
-  state: OperationState
-  title: string
-  message: string
-}
+const toast = ref({ type: 'info', text: '' } as ToastInterface)
 
-let operationStatus = ref({
+const operationStatus = ref({
   inProgress: false,
-  state: OperationState.Idle,
+  state: OperationStatesEnum.Idle,
   title: '',
   message: ''
-} as OperationStatus)
-
-const modal = ref<HTMLDialogElement | null>(null)
-onMounted(() => {
-  watch(operationStatus, (status) => {
-    if (status.state !== OperationState.Idle && modal.value) {
-      modal.value.showModal()
-    }
-  })
-})
-
-const inviteLinkField = ref<HTMLInputElement | null>(null)
-const inviteLink = ref('')
-const toastText = ref('')
-const copiedInviteLink = ref(false)
-
-function selectAndCopyText() {
-  if (!inviteLinkField.value) {
-    return
-  }
-  inviteLinkField.value.select()
-  const link = inviteLinkField.value.value
-  navigator.clipboard.writeText(link).then(() => {
-    copiedInviteLink.value = true
-    toastText.value = 'Copied to clipboard'
-    setTimeout(() => {
-      toastText.value = ''
-    }, 3000)
-  })
-}
+} as OperationStatusInterface)
 
 async function createGameHandler() {
-
   operationStatus.value = {
     inProgress: true,
-    state: OperationState.Creating,
+    state: OperationStatesEnum.Creating,
     title: 'Creating a new game session',
     message: 'Please wait...'
   }
@@ -71,20 +33,24 @@ async function createGameHandler() {
 
     operationStatus.value = {
       inProgress: false,
-      state: OperationState.Created,
+      state: OperationStatesEnum.Created,
       title: 'Game session created',
       message: 'Your game session has been created. Share the link with your friends.'
     }
   } catch (error) {
     operationStatus.value = {
       inProgress: false,
-      state: OperationState.Error,
+      state: OperationStatesEnum.Error,
       title: 'Failed to create a game session',
       message: 'Something went wrong. Please try again later.'
     }
-    toastText.value = 'Failed to create a game session'
+    toast.value.text = 'Failed to create a game session'
     console.error(error)
   }
+}
+
+async function play() {
+  await router.push({ name: 'game' })
 }
 </script>
 
@@ -112,43 +78,5 @@ async function createGameHandler() {
     </div>
   </section>
 
-  <dialog ref="modal" class="modal">
-    <div class="modal-box flex gap-4 flex-col">
-      <div class="flex gap-3">
-        <span v-if="operationStatus.inProgress" class="loading loading-spinner loading-md"></span>
-        <h3 class="font-bold text-lg">{{ operationStatus.title }}</h3>
-      </div>
-      <p>{{ operationStatus.message }}</p>
-      <input
-        ref="inviteLinkField"
-        class="input input-bordered join-item w-full"
-        :value="inviteLink"
-        v-if="operationStatus.state === OperationState.Created"
-        @click="selectAndCopyText"
-        readonly
-      />
-      <button
-        v-if="operationStatus.state === OperationState.Created"
-        class="btn"
-        :disabled="!copiedInviteLink"
-        @click="() => router.push({ name: 'game' })"
-      >
-        {{ copiedInviteLink ? 'Play now' : 'Copy the link to continue' }}
-      </button>
-      <div
-        v-if="operationStatus.state === OperationState.Error"
-        class="modal-action mt-0"
-      >
-        <form method="dialog" class="w-full">
-          <button class="btn w-full">Close</button>
-        </form>
-      </div>
-    </div>
-
-    <div v-if="toastText" class="toast">
-      <div class="alert alert-info">
-        <span>{{ toastText }}</span>
-      </div>
-    </div>
-  </dialog>
+  <GameCreationDialog :operation-status="operationStatus" :invite-link="inviteLink" @play="play" />
 </template>

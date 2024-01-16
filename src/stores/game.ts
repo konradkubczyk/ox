@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { FieldInterface } from '@/types/FieldInterface'
 
-interface Field {
-  position: number,
-  player: number
+function getEmptyBoard() {
+  return Array(9).fill(null).map((_, index) => ({ position: index, player: null })) as FieldInterface[]
 }
 
 export const useGameStore = defineStore('game', () => {
   const turn = ref<string | null>(null)
-  const positions = ref<Field[]>(Array(9).fill({ position: 0, player: 0 }))
+  const positions = ref<FieldInterface[]>(getEmptyBoard())
   const player1Wins = ref<number | null>(null)
   const player2Wins = ref<number | null>(null)
   const gameNumber = ref<number | null>(null)
@@ -17,7 +17,7 @@ export const useGameStore = defineStore('game', () => {
     turn.value = player
   }
 
-  function setPositions(board: Field[]) {
+  function setPositions(board: FieldInterface[]) {
     positions.value = board
   }
 
@@ -35,7 +35,7 @@ export const useGameStore = defineStore('game', () => {
 
   function clear() {
     turn.value = null
-    positions.value = Array(9).fill({ position: 0, player: 0 })
+    positions.value = getEmptyBoard()
     player1Wins.value = null
     player2Wins.value = null
     gameNumber.value = null

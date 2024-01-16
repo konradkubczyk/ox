@@ -1,4 +1,4 @@
-import { Client, Account, Databases, Functions } from 'appwrite'
+import { Account, Client, Databases, Functions } from 'appwrite'
 import { API_BASE_URL, PROJECT_ID } from '@/config/api'
 
 export const client = new Client()

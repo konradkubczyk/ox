@@ -4,34 +4,27 @@ import { connectToGame, loadGame, makeMove } from '@/services/client'
 import { useGameStore } from '@/stores/game'
 import { computed, ref, watch } from 'vue'
 import router from '@/router'
-
-import IconX from '@/components/icons/IconX.vue'
-import IconO from '@/components/icons/IconO.vue'
-
-interface Toast {
-  type: 'error' | 'success' | 'warning' | 'info',
-  text: string
-}
-
-const toast = ref<Toast>({ type: 'info', text: '' })
+import NotificationToast from '@/components/NotificationToast.vue'
+import type { PreviousStatsInterface } from '@/types/PreviousStatsInterface'
+import type { ToastInterface } from '@/types/ToastInterface'
+import GameField from '@/components/GameField.vue'
+import type { FieldInterface } from '@/types/FieldInterface'
 
 const NUMBER_OF_FIELDS = 9
 
 const sessionStore = useSessionStore()
 const gameStore = useGameStore()
 
-interface PreviousStats {
-  player1Wins: number
-  player2Wins: number
-  gameNumber: number
-}
+const toast = ref({ type: 'info', text: '' } as ToastInterface)
 
-const previousStats = ref<PreviousStats>({
+const previousStats = ref<PreviousStatsInterface>({
   player1Wins: 0,
   player2Wins: 0,
   gameNumber: 0
 })
+
 let hydrated = false
+
 watch(() => gameStore.gameNumber, (gameNumber) => {
   if (gameNumber === null || !hydrated) {
     hydrated = true
@@ -64,7 +57,7 @@ watch(() => gameStore.gameNumber, (gameNumber) => {
   }
 })
 
-let positions = computed(() => Array.from(gameStore.positions.values()))
+let positions = computed(() => Array.from(gameStore.positions.values()) as FieldInterface[])
 const initialized = ref(false)
 
 async function initializeGame() {
@@ -138,16 +131,14 @@ function quit() {
     <div
       class="aspect-square grid grid-cols-3 gap-3"
     >
-      <button
+      <GameField
         v-for="(field, index) in NUMBER_OF_FIELDS"
         :key="field"
-        @click="makeMoveHandler(index)"
-        class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
-        :disabled="sessionStore.player !== gameStore.turn || Boolean(positions[index].player) || changingField !== -1"
-      >
-        <IconO v-if="positions[index].player == 1" class="fill-base-content" />
-        <IconX v-else-if="positions[index].player == 2" class="fill-base-content" />
-      </button>
+        :index="index"
+        :player="positions[index].player as (string | undefined)"
+        :waitingForOpponent="sessionStore.player !== gameStore.turn"
+        @make-move="makeMoveHandler"
+      />
     </div>
     <div>
       <p class="opacity-50 text-center">
@@ -157,21 +148,5 @@ function quit() {
     </div>
   </section>
 
-  <div v-if="toast.text" class="toast">
-    <div
-      class="alert"
-      :class="{
-        'alert-error': toast.type === 'error',
-        'alert-success': toast.type === 'success',
-        'alert-warning': toast.type === 'warning',
-        'alert-info': toast.type === 'info'
-      }"
-    >
-      <span>{{ toast.text }}</span>
-    </div>
-  </div>
+  <NotificationToast :toast="toast" />
 </template>
-
-<style scoped>
-
-</style>
