@@ -13,7 +13,6 @@ defineEmits(['makeMove'])
 
 <template>
   <button
-
     @click="$emit('makeMove', index)"
     class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
     :disabled="waitingForOpponent || player !== null"

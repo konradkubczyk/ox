@@ -20,7 +20,8 @@ import IconX from '@/components/icons/IconX.vue'
     <RouterView />
   </main>
 
-  <footer class="text-center p-4 flex mx-auto flex-wrap gap-x-10 gap-y-2 justify-center text-base-content/35 uppercase tracking-widest text-sm">
+  <footer
+    class="text-center p-4 flex mx-auto flex-wrap gap-x-10 gap-y-2 justify-center text-base-content/35 uppercase tracking-widest text-sm">
     <a href="https://konradkubczyk.com" target="_blank" class="hover:text-base-content/80 transition">
       Author
     </a>

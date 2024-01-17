@@ -11,7 +11,7 @@ defineProps({
 </script>
 
 <template>
-  <div  class="collapse collapse-arrow bg-base-200">
+  <div class="collapse collapse-arrow bg-base-200">
     <input type="radio" name="my-accordion-1" />
     <div class="collapse-title flex gap-3 items-center justify-between flex-wrap">
       <h2 class="md:text-xl">{{ license.name }}</h2>
