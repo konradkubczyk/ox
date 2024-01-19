@@ -21,13 +21,16 @@ import IconX from '@/components/icons/IconX.vue'
   </main>
 
   <footer
-    class="text-center p-4 flex mx-auto flex-wrap gap-x-10 gap-y-2 justify-center text-base-content/35 uppercase tracking-widest text-sm">
+    class="text-center p-4 flex mx-auto flex-wrap gap-x-6 sm:gap-x-10 gap-y-2 justify-center text-base-content/35 uppercase tracking-widest text-sm">
     <a href="https://konradkubczyk.com" target="_blank" class="hover:text-base-content/80 transition">
       Author
     </a>
     <RouterLink to="/licenses" class="hover:text-base-content/80 transition">
       Licenses
     </RouterLink>
+    <a href="https://gitlab.com/konradkubczyk/ox" target="_blank" class="hover:text-base-content/80 transition">
+      Code
+    </a>
   </footer>
 </template>
 
