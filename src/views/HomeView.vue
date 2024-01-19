@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { createGame } from '@/services/client'
+import router from '@/router'
 import { ref } from 'vue'
-import GameCreationDialog from '@/components/GameCreationDialog.vue'
+import { createGame } from '@/services/client'
 import { OperationStatesEnum } from '@/types/OperationStatesEnum'
 import type { OperationStatusInterface } from '@/types/OperationStatusInterface'
 import type { ToastInterface } from '@/types/ToastInterface'
-import router from '@/router'
+import GameCreationDialog from '@/components/GameCreationDialog.vue'
+import AdvantageCard from '@/components/AdvantageCard.vue'
 
 const inviteLink = ref('')
 
@@ -55,14 +56,13 @@ async function play() {
 </script>
 
 <template>
-  <section class="text-center p-3">
+  <section class="text-center px-4">
     <div class="max-w-xl mx-auto">
-      <h2 class="text-4xl md:text-5xl">
-        Connect,
+      <h2 class="text-4xl md:text-5xl font-semibold">
+        Connect &
         <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">play</span>
-        &&nbsp;win.
       </h2>
-      <p class="my-8">
+      <p class="my-4 opacity-75">
         Tic Tac Toe, Noughts and Crosses, or perhaps Xs and Os? However you call it, you can play it here. Challenge
         friends and unleash your inner strategic genius, or just enjoy some playful banter. It's all about connecting -
         both the dots and with your opponents!
@@ -70,11 +70,22 @@ async function play() {
       <div class="flex gap-5 justify-center">
         <button
           @click="createGameHandler"
-          class="btn btn-neutral"
+          class="btn btn-neutral w-full sm:w-auto"
         >
           Create a new game
         </button>
       </div>
+    </div>
+  </section>
+  <section class="text-center px-4 mt-4 sm:mt-8">
+    <div class="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto">
+      <AdvantageCard title="Open source">
+        The game is open source, and you can find its code in the <a href="https://gitlab.com/konradkubczyk/ox"
+                                                                     target="_blank" class="link">repository</a>.
+      </AdvantageCard>
+      <AdvantageCard title="Privacy-friendly">
+        No accounts, no invasive tracking and no ads. Just a simple game.
+      </AdvantageCard>
     </div>
   </section>
 
