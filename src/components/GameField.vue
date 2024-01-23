@@ -15,7 +15,7 @@ defineEmits(['makeMove'])
   <button
     @click="$emit('makeMove', index)"
     class="btn h-full w-full text-8xl font-normal aspect-square p-5 sm:p-10"
-    :disabled="waitingForOpponent || player !== null"
+    :disabled="waitingForOpponent || player != null"
   >
     <IconO v-if="player === '1'" class="fill-base-content" />
     <IconX v-else-if="player === '2'" class="fill-base-content" />
