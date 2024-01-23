@@ -9,6 +9,7 @@ import type { PreviousStatsInterface } from '@/types/PreviousStatsInterface'
 import type { ToastInterface } from '@/types/ToastInterface'
 import GameField from '@/components/GameField.vue'
 import type { FieldInterface } from '@/types/FieldInterface'
+import GameStatusBar from '@/components/GameStatusBar.vue'
 
 const NUMBER_OF_FIELDS = 9
 
@@ -96,38 +97,12 @@ function quit() {
 
 <template>
   <section class="flex flex-col gap-3 max-w-3xl mx-auto px-3">
-    <div class="bg-accent-content rounded-md p-3 flex gap-3 justify-between items-center text-neutral-content">
-      <div
-        v-if="!initialized"
-        class="flex gap-3 items-center px-2"
-      >
-        <span class="loading loading-spinner loading-xs"></span>
-        <p>Connecting...</p>
-      </div>
-      <div
-        v-else-if="sessionStore.player !== gameStore.turn"
-        class="flex gap-3 items-center px-2"
-      >
-        <span class="loading loading-dots loading-xs"></span>
-        <p>Waiting for opponent...</p>
-      </div>
-      <div
-        v-else
-        class="flex gap-3 items-center px-2"
-      >
-        <span class="relative flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-full w-full bg-accent"></span>
-        </span>
-        <p>Your turn</p>
-      </div>
-      <button
-        class="btn btn-neutral btn-sm m-1"
-        @click="quit"
-      >
-        Quit
-      </button>
-    </div>
+    <GameStatusBar
+      :initialized="initialized"
+      :player="sessionStore.player as (string | undefined)"
+      :turn="gameStore.turn as (string | undefined)"
+      @quit="quit"
+    />
     <div
       class="aspect-square grid grid-cols-3 gap-3"
     >
