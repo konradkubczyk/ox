@@ -7,13 +7,13 @@ import IconX from '@/components/icons/IconX.vue'
 
 <template>
   <header class="text-center">
-    <a href="/" class="opacity-50 hover:opacity-90 transition inline-block">
+    <router-link to="/" class="opacity-50 hover:opacity-90 transition inline-block">
       <h1 class="text-4xl text-center py-4 select-none sr-only">OX</h1>
       <div class="flex gap-1 justify-center p-5">
         <IconO class="w-9 fill-base-content" />
         <IconX class="w-9 fill-base-content" />
       </div>
-    </a>
+    </router-link>
   </header>
 
   <main>
