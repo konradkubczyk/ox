@@ -75,15 +75,13 @@ let changingField = ref(-1)
 async function makeMoveHandler(fieldNumber: number) {
   changingField.value = fieldNumber
   try {
-    const move = await makeMove(fieldNumber)
-    if (!move.ok) {
-      toast.value = { type: 'error', text: move.error }
-      setTimeout(() => {
-        toast.value.text = ''
-      }, 3000)
-    }
+    await makeMove(fieldNumber)
   } catch (error) {
     console.error(error)
+    toast.value = { type: 'error', text: 'Something went wrong, refreshing the page may help' }
+    setTimeout(() => {
+      toast.value.text = ''
+    }, 7000)
   }
   changingField.value = -1
 }

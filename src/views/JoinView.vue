@@ -29,17 +29,9 @@ async function inviteLinkHandler() {
   const inviteCode = route.query.inviteCode as string
 
   try {
-    const game = await joinGame(sessionId, inviteCode)
-    if (!game.ok) {
-      joinStatus.value = {
-        inProgress: false,
-        state: JoinState.Error,
-        title: 'Error',
-        message: game.error
-      }
-      return
-    }
+    await joinGame(sessionId, inviteCode)
   } catch (error) {
+    console.error(error)
     joinStatus.value = {
       inProgress: false,
       state: JoinState.Error,

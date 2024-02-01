@@ -51,9 +51,7 @@ export async function joinGame(sessionId: string, inviteCode: string) {
   const response = await JSON.parse(execution.responseBody)
 
   if (!response.ok) {
-    // TODO: Handle errors gracefully
-    console.error(response)
-    // throw new Error('An error occurred while joining the game.')
+    throw new Error('An error occurred while joining the game.')
   }
 
   const sessionStore = useSessionStore()
@@ -96,9 +94,7 @@ export async function makeMove(position: number) {
   const response = await JSON.parse(execution.responseBody)
 
   if (!response.ok) {
-    // TODO: Handle errors gracefully
-    console.error(response)
-    //throw new Error('An error occurred while making a move.')
+    throw new Error('An error occurred while making a move.')
   }
 
   return response
