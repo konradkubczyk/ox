@@ -58,16 +58,17 @@ async function play() {
 <template>
   <section class="text-center px-4">
     <div class="max-w-xl mx-auto">
-      <h2 class="text-4xl md:text-5xl font-semibold">
-        Connect &
-        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">play</span>
+      <h2 class="text-2xl sm:text-4xl uppercase flex flex-col gap-1">
+        <span class="text-clip bg-clip-text text-transparent bg-gradient-to-tr from-blue-500 to-green-400">Multiplayer</span>
+        <br>
+        <span class="text-4xl sm:text-6xl font-semibold">tic tac toe</span>
       </h2>
-      <p class="my-4 opacity-75">
-        Tic Tac Toe, Noughts and Crosses, or perhaps Xs and Os? However you call it, you can play it here. Challenge
+      <p class="mt-4 opacity-75">
+        Tic tac toe, noughts and crosses, or perhaps Xs and Os? However you call it, you can play it here. Challenge
         friends and unleash your inner strategic genius, or just enjoy some playful banter. It's all about connecting -
         both the dots and with your opponents!
       </p>
-      <div class="flex gap-5 justify-center">
+      <div class="mt-6 flex gap-5 justify-center">
         <button
           @click="createGameHandler"
           class="btn btn-neutral w-full sm:w-auto"
