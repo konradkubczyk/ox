@@ -1,4 +1,4 @@
 export interface FieldInterface {
-  position: Number,
-  player: String | null
+  position: number,
+  player: string | null
 }

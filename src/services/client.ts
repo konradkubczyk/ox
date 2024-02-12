@@ -19,7 +19,7 @@ export async function createGame() {
   const response = await JSON.parse(execution.responseBody)
 
   if (!response.ok) {
-    //throw new Error('An error occurred while creating the game.')
+    throw new Error('An error occurred while creating the game.')
   }
 
   const sessionStore = useSessionStore()
@@ -80,7 +80,7 @@ export async function makeMove(position: number) {
 
   const execution = await functions.createExecution(
     AGENT_FUNCTION_ID,
-    JSON.stringify({ position: String(position) }),
+    JSON.stringify({ position: position.toString() }),
     false,
     '/',
     'PATCH',
