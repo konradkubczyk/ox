@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:container": "vite --host",
     "build": "run-p type-check gather-licenses \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
