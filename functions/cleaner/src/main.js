@@ -1,13 +1,13 @@
 import { Client, Databases, Query } from 'node-appwrite'
 
-// eslint-disable-next-line no-unused-vars
+ 
 export default async ({ req, res, log, error }) => {
   log('Preparing for cleanup...')
 
   const CURRENT_TIMESTAMP_IN_SECONDS = Math.floor(Date.now() / 1000)
-  // eslint-disable-next-line no-undef
+   
   const TIME_TO_LIVE_IN_SECONDS = process.env.TIME_TO_LIVE_IN_SECONDS !== undefined
-    // eslint-disable-next-line no-undef
+     
     ? process.env.TIME_TO_LIVE_IN_SECONDS
     : 60 * 60 * 24 * 7 // default: 7 days
   const EXPIRATION_TIMESTAMP_IN_SECONDS = CURRENT_TIMESTAMP_IN_SECONDS - TIME_TO_LIVE_IN_SECONDS
@@ -22,9 +22,9 @@ export default async ({ req, res, log, error }) => {
   // Create a new Appwrite SDK client
   const client = new Client()
     .setEndpoint('https://cloud.appwrite.io/v1')
-    // eslint-disable-next-line no-undef
+     
     .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    // eslint-disable-next-line no-undef
+     
     .setKey(process.env.APPWRITE_API_KEY)
 
   // Create a new Appwrite SDK database instance
@@ -32,9 +32,9 @@ export default async ({ req, res, log, error }) => {
 
   // Get a list of all documents in the sessions collection
   const documentsLits = await databases.listDocuments(
-    // eslint-disable-next-line no-undef
+     
     process.env.APPWRITE_DATABASE_ID,
-    // eslint-disable-next-line no-undef
+     
     process.env.APPWRITE_SESSIONS_COLLECTION_ID,
     [
       Query.limit(5000)
@@ -54,9 +54,9 @@ export default async ({ req, res, log, error }) => {
   // Delete all stale documents
   const promises = staleDocuments.map(document => {
     return databases.deleteDocument(
-      // eslint-disable-next-line no-undef
+       
       process.env.APPWRITE_DATABASE_ID,
-      // eslint-disable-next-line no-undef
+       
       process.env.APPWRITE_SESSIONS_COLLECTION_ID,
       document.$id
     )

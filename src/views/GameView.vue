@@ -58,7 +58,7 @@ watch(() => gameStore.gameNumber, (gameNumber) => {
   }
 })
 
-let positions = computed(() => Array.from(gameStore.positions.values()) as FieldInterface[])
+const positions = computed(() => Array.from(gameStore.positions.values()) as FieldInterface[])
 const initialized = ref(false)
 
 async function initializeGame() {
@@ -70,7 +70,7 @@ async function initializeGame() {
 
 initializeGame()
 
-let changingField = ref(-1)
+const changingField = ref(-1)
 
 async function makeMoveHandler(fieldNumber: number) {
   changingField.value = fieldNumber

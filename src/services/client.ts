@@ -2,6 +2,7 @@ import { useSessionStore } from '@/stores/session'
 import { client, databases, functions } from '@/lib/appwrite'
 import { AGENT_FUNCTION_ID, DATABASE_ID, GAMES_COLLECTION_ID } from '@/config/api'
 import { useGameStore } from '@/stores/game'
+import { ExecutionMethod } from 'appwrite'
 import type { RealtimeResponseEvent } from 'appwrite'
 
 export async function createGame() {
@@ -10,7 +11,7 @@ export async function createGame() {
     '{}',
     false,
     '/',
-    'POST',
+    ExecutionMethod.POST,
     {
       'Content-Type': 'application/json'
     }
@@ -40,7 +41,7 @@ export async function joinGame(sessionId: string, inviteCode: string) {
     '{}',
     false,
     '/',
-    'GET',
+    ExecutionMethod.GET,
     {
       'Content-Type': 'application/json',
       'Session-ID': sessionId,
@@ -83,7 +84,7 @@ export async function makeMove(position: number) {
     JSON.stringify({ position: position.toString() }),
     false,
     '/',
-    'PATCH',
+    ExecutionMethod.PATCH,
     {
       'Content-Type': 'application/json',
       'Session-ID': sessionStore.sessionId,
@@ -100,8 +101,16 @@ export async function makeMove(position: number) {
   return response
 }
 
+interface GamePayload {
+  turn: string
+  positions: string
+  player1Wins: number
+  player2Wins: number
+  gameNumber: number
+}
+
 export async function connectToGame(gameId: string) {
-  return client.subscribe(`databases.${DATABASE_ID}.collections.${GAMES_COLLECTION_ID}.documents.${gameId}`, (response: RealtimeResponseEvent<any>) => {
+  return client.subscribe(`databases.${DATABASE_ID}.collections.${GAMES_COLLECTION_ID}.documents.${gameId}`, (response: RealtimeResponseEvent<GamePayload>) => {
     const gameStore = useGameStore()
 
     gameStore.setTurn(response.payload.turn)

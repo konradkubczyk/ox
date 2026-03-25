@@ -8,7 +8,7 @@ import { useGameStore } from '@/stores/game'
 import { JoinState } from '@/types/JoinStatesEnum'
 import type { JoinStatusInterface } from '@/types/JoinStatusInterface'
 
-let joinStatus = ref({
+const joinStatus = ref({
   inProgress: true,
   state: JoinState.Joining,
   title: 'Preparing',

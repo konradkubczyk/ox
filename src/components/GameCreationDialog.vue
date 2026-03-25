@@ -59,7 +59,7 @@ defineEmits(['play'])
       <p>{{ operationStatus.message }}</p>
       <input
         ref="inviteLinkField"
-        class="input input-bordered join-item w-full"
+        class="input join-item w-full"
         :value="inviteLink"
         v-if="operationStatus.state === OperationStatesEnum.Created"
         @click="selectAndCopyText"
